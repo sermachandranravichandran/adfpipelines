@@ -1,0 +1,78 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "azure-datafactory1607"
+		},
+		"AzureBlobStorage1_connectionString": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_accountKey": {
+			"value": ""
+		},
+		"AzureSqlDatabase1_password": {
+			"value": ""
+		},
+		"AzureSqlDatabase2_password": {
+			"value": ""
+		},
+		"AzureSqlDatabase3_password": {
+			"value": ""
+		},
+		"AzureSqlDatabase4_connectionString": {
+			"value": ""
+		},
+		"AzureSqlDatabase5_password": {
+			"value": ""
+		},
+		"sermavm_password": {
+			"value": ""
+		},
+		"AzureDataLakeStorage1_properties_typeProperties_url": {
+			"value": "https://datalakegen2accountxyx.dfs.core.windows.net/"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_server": {
+			"value": "dbuser.database.windows.net"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_database": {
+			"value": "free-sql-db-9291976"
+		},
+		"AzureSqlDatabase1_properties_typeProperties_userName": {
+			"value": "serma"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_server": {
+			"value": "dbuser.database.windows.net"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_database": {
+			"value": "free-sql-db-9291976"
+		},
+		"AzureSqlDatabase2_properties_typeProperties_userName": {
+			"value": "serma"
+		},
+		"AzureSqlDatabase3_properties_typeProperties_server": {
+			"value": "dbuser.database.windows.net"
+		},
+		"AzureSqlDatabase3_properties_typeProperties_database": {
+			"value": "free-sql-db-9291976"
+		},
+		"AzureSqlDatabase3_properties_typeProperties_userName": {
+			"value": "serma"
+		},
+		"AzureSqlDatabase5_properties_typeProperties_server": {
+			"value": "dbuser.database.windows.net"
+		},
+		"AzureSqlDatabase5_properties_typeProperties_database": {
+			"value": "free-sql-db-9291976"
+		},
+		"AzureSqlDatabase5_properties_typeProperties_userName": {
+			"value": "serma"
+		},
+		"sermavm_properties_typeProperties_host": {
+			"value": "C:\\inetpub\\logs\\LogFiles\\W3SVC1"
+		},
+		"sermavm_properties_typeProperties_userId": {
+			"value": "serma"
+		}
+	}
+}

@@ -1,0 +1,659 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "azure-datafactory1607"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ConvertJSON')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Jsonteammembers",
+								"type": "DatasetReference"
+							},
+							"name": "SourceJSONteammembers"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable5",
+								"type": "DatasetReference"
+							},
+							"name": "StoreSQLTable"
+						}
+					],
+					"transformations": [
+						{
+							"name": "flattenarray"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          company as string,",
+						"          fiscal_year as integer,",
+						"          location_code as string,",
+						"          departments as (dept_id as string, name as string, budget as double, manager as (emp_id as string, name as string, email as string), projects as (project_id as string, title as string, status as string, metrics as (completion_pct as double, priority_score as integer), team_members as (name as string, role as string, experience_years as integer)[])[])[]",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false,",
+						"     documentForm: 'arrayOfDocuments') ~> SourceJSONteammembers",
+						"SourceJSONteammembers foldDown(unroll(departments, departments),",
+						"     mapColumn(",
+						"          company,",
+						"          fiscal_year,",
+						"          location_code,",
+						"          departmentsid = departments.dept_id,",
+						"          Deptname = departments.name",
+						"     ),",
+						"     skipDuplicateMapInputs: false,",
+						"     skipDuplicateMapOutputs: false) ~> flattenarray",
+						"flattenarray sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> StoreSQLTable"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Netflix_titles_metrices')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "Netflixtitles",
+								"type": "DatasetReference"
+							},
+							"name": "Netflixtitle"
+						},
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable3",
+								"type": "DatasetReference"
+							},
+							"name": "Netflixmetrices"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable4",
+								"type": "DatasetReference"
+							},
+							"name": "Netflixtitlesmetrice"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Netflixtitlesmetrices"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          Show_ID as string,",
+						"          Type as string,",
+						"          Title as string,",
+						"          Release_Year as integer,",
+						"          Rating as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> Netflixtitle",
+						"source(output(",
+						"          Show_ID as string,",
+						"          Genre as string,",
+						"          Hours_Watched_M as decimal(5,1),",
+						"          Country_Origin as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> Netflixmetrices",
+						"Netflixtitle, Netflixmetrices join(Netflixtitle@Show_ID == Netflixmetrices@Show_ID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> Netflixtitlesmetrices",
+						"Netflixtitlesmetrices sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          Show_ID = Netflixtitle@Show_ID,",
+						"          Type,",
+						"          Title,",
+						"          Release_Year,",
+						"          Rating,",
+						"          Genre,",
+						"          Hours_Watched_M,",
+						"          Country_Origin",
+						"     )) ~> Netflixtitlesmetrice"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/calculatepayroll')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "datalakegen2",
+								"type": "DatasetReference"
+							},
+							"name": "Employeestable"
+						},
+						{
+							"dataset": {
+								"referenceName": "datalakegen3",
+								"type": "DatasetReference"
+							},
+							"name": "timesheettable"
+						},
+						{
+							"dataset": {
+								"referenceName": "datalakegen2",
+								"type": "DatasetReference"
+							},
+							"name": "EmployeesTableCache"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "CalculatedGrossPay",
+								"type": "DatasetReference"
+							},
+							"name": "GrossPay"
+						},
+						{
+							"name": "sinkCacheEmrployeesFirstbatch"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivehourlyrate"
+						},
+						{
+							"name": "derivegrosspay"
+						},
+						{
+							"name": "joinemployeesandtimesheet"
+						},
+						{
+							"name": "selectcolumns"
+						},
+						{
+							"name": "filteractiveemplyoees"
+						},
+						{
+							"name": "surrogateKeypayrollid"
+						},
+						{
+							"name": "filterinactiveemployees"
+						},
+						{
+							"name": "PayrollIDSurrogate"
+						},
+						{
+							"name": "MaxPayrollID"
+						},
+						{
+							"name": "DerivePayrollID"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          EmpID as string,",
+						"          EmpName as string,",
+						"          Department as string,",
+						"          Salary as string,",
+						"          Status as string,",
+						"          HireDate as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> Employeestable",
+						"source(output(",
+						"          TimesheetID as string,",
+						"          EmpID as string,",
+						"          PayPeriod as string,",
+						"          HoursWorked as string,",
+						"          OvertimeHours as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> timesheettable",
+						"source(output(",
+						"          EmpID as string,",
+						"          EmpName as string,",
+						"          Department as string,",
+						"          Salary as string,",
+						"          Status as string,",
+						"          HireDate as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> EmployeesTableCache",
+						"selectcolumns derive(HourlyRate = toDecimal(Salary) / 2080) ~> derivehourlyrate",
+						"derivehourlyrate derive(GrossPay = (toDouble(Salary) / 12) + (toDouble(OvertimeHours) * toDouble(HourlyRate) * 1.5)) ~> derivegrosspay",
+						"filteractiveemplyoees, timesheettable join(Employeestable@EmpID == timesheettable@EmpID,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> joinemployeesandtimesheet",
+						"joinemployeesandtimesheet select(mapColumn(",
+						"          EmpID = Employeestable@EmpID,",
+						"          Salary,",
+						"          Status,",
+						"          TimesheetID,",
+						"          PayPeriod,",
+						"          HoursWorked,",
+						"          OvertimeHours",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> selectcolumns",
+						"Employeestable filter(!(Status == 'Active')) ~> filteractiveemplyoees",
+						"derivegrosspay keyGenerate(output(PayrollID as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> surrogateKeypayrollid",
+						"EmployeesTableCache filter(Status== 'Active') ~> filterinactiveemployees",
+						"filterinactiveemployees keyGenerate(output(PayrollID as long),",
+						"     startAt: 1L,",
+						"     stepValue: 1L) ~> PayrollIDSurrogate",
+						"PayrollIDSurrogate aggregate(MaxPayrollID = max(PayrollID)) ~> MaxPayrollID",
+						"surrogateKeypayrollid derive(PayrollID = PayrollID + sinkCacheEmrployeesFirstbatch#outputs()[1].MaxPayrollID) ~> DerivePayrollID",
+						"DerivePayrollID sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError') ~> GrossPay",
+						"MaxPayrollID sink(validateSchema: false,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     store: 'cache',",
+						"     format: 'inline',",
+						"     output: false,",
+						"     saveOrder: 1) ~> sinkCacheEmrployeesFirstbatch"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/CalculateGrossPay')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "DataFlowforcalculatingGrossPay",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [
+							{
+								"activity": "DropGrossPaytable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "calculatepayroll",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Employeestable": {},
+									"timesheettable": {},
+									"EmployeesTableCache": {},
+									"GrossPay": {},
+									"sinkCacheEmrployeesFirstbatch": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "DropGrossPaytable",
+						"type": "Script",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "AzureSqlDatabase4",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": "DROP TABLE IF EXISTS dbo.GrossPay;"
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-06-07T15:18:58Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/calculatepayroll')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ConvertJSON')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ConvertJSONintoSQLtable",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "ConvertJSON",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"SourceJSONteammembers": {},
+									"StoreSQLTable": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-06-08T07:35:07Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/ConvertJSON')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Netflix_pipeline_SQLDBtoADLSGen2')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "join_netflix_title_metric",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "Netflix_titles_metrices",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"Netflixtitle": {},
+									"Netflixmetrices": {},
+									"Netflixtitlesmetrice": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "movefromsqldbtoadlsgen2",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "join_netflix_title_metric",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "Select * from Netflixtitlesmetrice \nWhere Show_ID =‘S102’",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "PreserveHierarchy"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "AzureSqlTable4",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "Parquet2",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-06-02T18:51:09Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/Netflix_titles_metrices')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ProcessFilefromVM')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "PickFilefrmVM",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "BinarySource",
+								"storeSettings": {
+									"type": "FileServerReadSettings",
+									"recursive": true,
+									"deleteFilesAfterCompletion": false
+								},
+								"formatSettings": {
+									"type": "BinaryReadSettings"
+								}
+							},
+							"sink": {
+								"type": "BinarySink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings",
+									"copyBehavior": "PreserveHierarchy"
+								}
+							},
+							"enableStaging": false
+						},
+						"inputs": [
+							{
+								"referenceName": "log",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ActivityLogFile",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-06-10T05:04:37Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/tumblingwindowtrigger')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Started",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "TriggersPipleline",
+						"type": "PipelineReference"
+					},
+					"parameters": {}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Minute",
+					"interval": 5,
+					"startTime": "2026-06-11T14:39:00Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
