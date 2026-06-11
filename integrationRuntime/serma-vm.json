@@ -1,0 +1,6 @@
+{
+	"name": "serma-vm",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}

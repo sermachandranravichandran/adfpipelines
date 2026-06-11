@@ -1,0 +1,109 @@
+{
+	"name": "Jsonteammembers",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "teammembers.json",
+				"fileSystem": "convertjson"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"company": {
+					"type": "string"
+				},
+				"fiscal_year": {
+					"type": "integer"
+				},
+				"location_code": {
+					"type": "string"
+				},
+				"departments": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"dept_id": {
+								"type": "string"
+							},
+							"name": {
+								"type": "string"
+							},
+							"budget": {
+								"type": "number"
+							},
+							"manager": {
+								"type": "object",
+								"properties": {
+									"emp_id": {
+										"type": "string"
+									},
+									"name": {
+										"type": "string"
+									},
+									"email": {
+										"type": "string"
+									}
+								}
+							},
+							"projects": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"project_id": {
+											"type": "string"
+										},
+										"title": {
+											"type": "string"
+										},
+										"status": {
+											"type": "string"
+										},
+										"metrics": {
+											"type": "object",
+											"properties": {
+												"completion_pct": {
+													"type": "number"
+												},
+												"priority_score": {
+													"type": "integer"
+												}
+											}
+										},
+										"team_members": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"name": {
+														"type": "string"
+													},
+													"role": {
+														"type": "string"
+													},
+													"experience_years": {
+														"type": "integer"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

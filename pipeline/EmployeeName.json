@@ -1,0 +1,101 @@
+{
+	"name": "EmployeeName",
+	"properties": {
+		"activities": [
+			{
+				"name": "getEmployeeName",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[dbo].[getEmployeeName]",
+						"storedProcedureParameters": {
+							"employeename": {
+								"type": "String",
+								"value": "E106"
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable7",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "SetEmployeeName",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "getEmployeeName",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "pipelineReturnValue",
+					"value": [
+						{
+							"key": "EmployeeName",
+							"value": {
+								"type": "Expression",
+								"content": "@activity('getEmployeeName').output.firstRow"
+							}
+						}
+					],
+					"setSystemVariable": true
+				}
+			},
+			{
+				"name": "SetDefault",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "getEmployeeName",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "pipelineReturnValue",
+					"value": [
+						{
+							"key": "EmployeeName",
+							"value": {
+								"type": "String",
+								"content": "Default"
+							}
+						}
+					],
+					"setSystemVariable": true
+				}
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-06-11T12:45:24Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

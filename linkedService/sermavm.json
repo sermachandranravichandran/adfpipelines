@@ -1,0 +1,17 @@
+{
+	"name": "sermavm",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "FileServer",
+		"typeProperties": {
+			"host": "C:\\inetpub\\logs\\LogFiles\\W3SVC1",
+			"userId": "serma",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJhZGYyNzgzZi1iMDM0LTQ5OWYtYTU5Ni0xMTIxNDk0OTRhMmUiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "serma-vm",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

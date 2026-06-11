@@ -1,0 +1,17 @@
+{
+	"name": "activiltylog",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sermavm",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

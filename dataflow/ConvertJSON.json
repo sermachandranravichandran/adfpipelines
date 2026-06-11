@@ -1,0 +1,63 @@
+{
+	"name": "ConvertJSON",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Jsonteammembers",
+						"type": "DatasetReference"
+					},
+					"name": "SourceJSONteammembers"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable5",
+						"type": "DatasetReference"
+					},
+					"name": "StoreSQLTable"
+				}
+			],
+			"transformations": [
+				{
+					"name": "flattenarray"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          company as string,",
+				"          fiscal_year as integer,",
+				"          location_code as string,",
+				"          departments as (dept_id as string, name as string, budget as double, manager as (emp_id as string, name as string, email as string), projects as (project_id as string, title as string, status as string, metrics as (completion_pct as double, priority_score as integer), team_members as (name as string, role as string, experience_years as integer)[])[])[]",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'arrayOfDocuments') ~> SourceJSONteammembers",
+				"SourceJSONteammembers foldDown(unroll(departments, departments),",
+				"     mapColumn(",
+				"          company,",
+				"          fiscal_year,",
+				"          location_code,",
+				"          departmentsid = departments.dept_id,",
+				"          Deptname = departments.name",
+				"     ),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> flattenarray",
+				"flattenarray sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> StoreSQLTable"
+			]
+		}
+	}
+}

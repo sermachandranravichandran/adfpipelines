@@ -1,0 +1,156 @@
+{
+	"name": "DelimitedText1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "patient"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Status__c",
+				"type": "String"
+			},
+			{
+				"name": "Patient_Initials__c",
+				"type": "String"
+			},
+			{
+				"name": "DOB__c",
+				"type": "String"
+			},
+			{
+				"name": "First_Name__c",
+				"type": "String"
+			},
+			{
+				"name": "Middle_Name__c",
+				"type": "String"
+			},
+			{
+				"name": "Last_Name__c",
+				"type": "String"
+			},
+			{
+				"name": "Kite_Patient_ID__c",
+				"type": "String"
+			},
+			{
+				"name": "KK_GBL_Prior_to_BTKi__c",
+				"type": "String"
+			},
+			{
+				"name": "Gender__c",
+				"type": "String"
+			},
+			{
+				"name": "Enrolled_Date__c",
+				"type": "String"
+			},
+			{
+				"name": "KK_GBL_Comm_Retain_Status__c",
+				"type": "String"
+			},
+			{
+				"name": "DocuSign_Status__c",
+				"type": "String"
+			},
+			{
+				"name": "BI_Requested_from_Patient__c",
+				"type": "String"
+			},
+			{
+				"name": "Email__c",
+				"type": "String"
+			},
+			{
+				"name": "Phone__c",
+				"type": "String"
+			},
+			{
+				"name": "Preferred_Contact_Method__c",
+				"type": "String"
+			},
+			{
+				"name": "Preferred_Language__c",
+				"type": "String"
+			},
+			{
+				"name": "Primary_Contact_can_contact_Caregiver__c",
+				"type": "String"
+			},
+			{
+				"name": "Institution__c",
+				"type": "String"
+			},
+			{
+				"name": "Id",
+				"type": "String"
+			},
+			{
+				"name": "KK_GBL_Cancelled_Date__c",
+				"type": "String"
+			},
+			{
+				"name": "CreatedDate",
+				"type": "String"
+			},
+			{
+				"name": "Mailing_City__c",
+				"type": "String"
+			},
+			{
+				"name": "Mailing_Country__c",
+				"type": "String"
+			},
+			{
+				"name": "Mailing_Postal_Code__c",
+				"type": "String"
+			},
+			{
+				"name": "Mailing_State__c",
+				"type": "String"
+			},
+			{
+				"name": "Mailing_Street_1__c",
+				"type": "String"
+			},
+			{
+				"name": "Mailing_Street_2__c",
+				"type": "String"
+			},
+			{
+				"name": "KK_GBL_Line_of_Therapy__c",
+				"type": "String"
+			},
+			{
+				"name": "Hospital_Patient_ID__c",
+				"type": "String"
+			},
+			{
+				"name": "Hospital_Patient_ID_Type__c",
+				"type": "String"
+			},
+			{
+				"name": "Therapy__c",
+				"type": "String"
+			},
+			{
+				"name": "Region",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

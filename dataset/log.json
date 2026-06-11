@@ -1,0 +1,18 @@
+{
+	"name": "log",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sermavm",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "FileServerLocation",
+				"fileName": "u_ex260610.log"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

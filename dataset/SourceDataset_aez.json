@@ -1,0 +1,50 @@
+{
+	"name": "SourceDataset_aez",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "Patient_US.csv",
+				"folderPath": "Patient",
+				"fileSystem": "patient"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "Status__c",
+				"type": "String"
+			},
+			{
+				"name": "Patient_Initials__c",
+				"type": "String"
+			},
+			{
+				"name": "DOB__c",
+				"type": "String"
+			},
+			{
+				"name": "First_Name__c",
+				"type": "String"
+			},
+			{
+				"name": "Middle_Name__c",
+				"type": "String"
+			},
+			{
+				"name": "Last_Name__c",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

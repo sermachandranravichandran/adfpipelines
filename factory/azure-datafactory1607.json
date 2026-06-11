@@ -1,0 +1,15 @@
+{
+	"name": "azure-datafactory1607",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "southindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "fcc8400b-31dd-48e5-ae31-d13a99310639",
+		"tenantId": "169c754d-92dd-4b74-b22d-74882a3a60db"
+	}
+}

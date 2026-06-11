@@ -1,0 +1,145 @@
+{
+	"name": "Patient-Pipeline-ADLSGen2toAzureSQLDatabase",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy_aez",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [
+					{
+						"name": "Source",
+						"value": "patient/Patient/Patient_US.csv"
+					},
+					{
+						"name": "Destination",
+						"value": "dbo.patient_target"
+					}
+				],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings",
+							"skipLineCount": 0
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink"
+					},
+					"enableStaging": false,
+					"validateDataConsistency": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "Status__c",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Status__c",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Patient_Initials__c",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Patient_Initials__c",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "DOB__c",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DOB__c",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "First_Name__c",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "First_Name__c",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Middle_Name__c",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Middle_Name__c",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							},
+							{
+								"source": {
+									"name": "Last_Name__c",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "Last_Name__c",
+									"type": "String",
+									"physicalType": "varchar"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataset_aez",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DestinationDataset_aez",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": [],
+		"lastPublishTime": "2026-05-30T18:48:28Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

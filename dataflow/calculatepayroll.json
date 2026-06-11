@@ -1,0 +1,154 @@
+{
+	"name": "calculatepayroll",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "datalakegen2",
+						"type": "DatasetReference"
+					},
+					"name": "Employeestable"
+				},
+				{
+					"dataset": {
+						"referenceName": "datalakegen3",
+						"type": "DatasetReference"
+					},
+					"name": "timesheettable"
+				},
+				{
+					"dataset": {
+						"referenceName": "datalakegen2",
+						"type": "DatasetReference"
+					},
+					"name": "EmployeesTableCache"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "CalculatedGrossPay",
+						"type": "DatasetReference"
+					},
+					"name": "GrossPay"
+				},
+				{
+					"name": "sinkCacheEmrployeesFirstbatch"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivehourlyrate"
+				},
+				{
+					"name": "derivegrosspay"
+				},
+				{
+					"name": "joinemployeesandtimesheet"
+				},
+				{
+					"name": "selectcolumns"
+				},
+				{
+					"name": "filteractiveemplyoees"
+				},
+				{
+					"name": "surrogateKeypayrollid"
+				},
+				{
+					"name": "filterinactiveemployees"
+				},
+				{
+					"name": "PayrollIDSurrogate"
+				},
+				{
+					"name": "MaxPayrollID"
+				},
+				{
+					"name": "DerivePayrollID"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          EmpID as string,",
+				"          EmpName as string,",
+				"          Department as string,",
+				"          Salary as string,",
+				"          Status as string,",
+				"          HireDate as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> Employeestable",
+				"source(output(",
+				"          TimesheetID as string,",
+				"          EmpID as string,",
+				"          PayPeriod as string,",
+				"          HoursWorked as string,",
+				"          OvertimeHours as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> timesheettable",
+				"source(output(",
+				"          EmpID as string,",
+				"          EmpName as string,",
+				"          Department as string,",
+				"          Salary as string,",
+				"          Status as string,",
+				"          HireDate as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> EmployeesTableCache",
+				"selectcolumns derive(HourlyRate = toDecimal(Salary) / 2080) ~> derivehourlyrate",
+				"derivehourlyrate derive(GrossPay = (toDouble(Salary) / 12) + (toDouble(OvertimeHours) * toDouble(HourlyRate) * 1.5)) ~> derivegrosspay",
+				"filteractiveemplyoees, timesheettable join(Employeestable@EmpID == timesheettable@EmpID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> joinemployeesandtimesheet",
+				"joinemployeesandtimesheet select(mapColumn(",
+				"          EmpID = Employeestable@EmpID,",
+				"          Salary,",
+				"          Status,",
+				"          TimesheetID,",
+				"          PayPeriod,",
+				"          HoursWorked,",
+				"          OvertimeHours",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectcolumns",
+				"Employeestable filter(!(Status == 'Active')) ~> filteractiveemplyoees",
+				"derivegrosspay keyGenerate(output(PayrollID as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKeypayrollid",
+				"EmployeesTableCache filter(Status== 'Active') ~> filterinactiveemployees",
+				"filterinactiveemployees keyGenerate(output(PayrollID as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> PayrollIDSurrogate",
+				"PayrollIDSurrogate aggregate(MaxPayrollID = max(PayrollID)) ~> MaxPayrollID",
+				"surrogateKeypayrollid derive(PayrollID = PayrollID + sinkCacheEmrployeesFirstbatch#outputs()[1].MaxPayrollID) ~> DerivePayrollID",
+				"DerivePayrollID sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> GrossPay",
+				"MaxPayrollID sink(validateSchema: false,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     store: 'cache',",
+				"     format: 'inline',",
+				"     output: false,",
+				"     saveOrder: 1) ~> sinkCacheEmrployeesFirstbatch"
+			]
+		}
+	}
+}

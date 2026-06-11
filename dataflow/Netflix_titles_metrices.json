@@ -1,0 +1,86 @@
+{
+	"name": "Netflix_titles_metrices",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "Netflixtitles",
+						"type": "DatasetReference"
+					},
+					"name": "Netflixtitle"
+				},
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable3",
+						"type": "DatasetReference"
+					},
+					"name": "Netflixmetrices"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable4",
+						"type": "DatasetReference"
+					},
+					"name": "Netflixtitlesmetrice"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Netflixtitlesmetrices"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Show_ID as string,",
+				"          Type as string,",
+				"          Title as string,",
+				"          Release_Year as integer,",
+				"          Rating as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Netflixtitle",
+				"source(output(",
+				"          Show_ID as string,",
+				"          Genre as string,",
+				"          Hours_Watched_M as decimal(5,1),",
+				"          Country_Origin as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Netflixmetrices",
+				"Netflixtitle, Netflixmetrices join(Netflixtitle@Show_ID == Netflixmetrices@Show_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Netflixtitlesmetrices",
+				"Netflixtitlesmetrices sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          Show_ID = Netflixtitle@Show_ID,",
+				"          Type,",
+				"          Title,",
+				"          Release_Year,",
+				"          Rating,",
+				"          Genre,",
+				"          Hours_Watched_M,",
+				"          Country_Origin",
+				"     )) ~> Netflixtitlesmetrice"
+			]
+		}
+	}
+}
